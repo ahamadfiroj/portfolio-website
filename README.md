@@ -68,46 +68,12 @@ Edit `/lib/data.ts` to update:
 - Dark mode: Controlled via the navbar toggle
 - Colors: Using Tailwind's gradient utilities
 
-### Adding Projects
-
-In `/lib/data.ts`, add new projects to the `projects` array:
-
-```typescript
-{
-  id: unique_id,
-  title: "Project Name",
-  description: "Short description",
-  longDescription: "Detailed description",
-  technologies: ["Tech1", "Tech2"],
-  image: "/project-image.jpg",
-  liveUrl: "https://live-demo.com",
-  githubUrl: "https://github.com/...",
-  category: "own" | "contribution",
-  features: ["Feature 1", "Feature 2"]
-}
-```
-
 ## Build for Production
 
 ```bash
 npm run build
 npm start
 ```
-
-## Deployment
-
-This portfolio is ready to deploy on:
-
-- **Vercel** (recommended for Next.js)
-- **Netlify**
-- **GitHub Pages**
-- **AWS Amplify**
-
-### Deploy to Vercel
-
-1. Push your code to GitHub
-2. Import project on [Vercel](https://vercel.com)
-3. Deploy with zero configuration
 
 ## Project Structure
 
@@ -138,14 +104,6 @@ portfolio-website/
 - **Lazy Loading:** Components load on scroll
 - **SEO Ready:** Meta tags and Open Graph support
 - **Responsive:** Mobile-first design approach
-
-## Resume Integration
-
-Place your resume PDF in the `/public` folder as `resume.pdf` for the download functionality to work.
-
-## License
-
-This project is open source and available for personal use.
 
 ## Contact
 
