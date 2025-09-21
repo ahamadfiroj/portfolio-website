@@ -6,6 +6,15 @@ export const metadata: Metadata = {
   description: "Professional portfolio of Firoj Ahamad showcasing 4+ years of experience transforming Figma designs into interactive web applications using React, Next.js, TypeScript, and comprehensive testing expertise",
   keywords: ["Firoj Ahamad", "Frontend Developer", "React", "Next.js", "TypeScript", "Figma to Code", "Manual Testing", "Portfolio", "Web Developer"],
   authors: [{ name: "Firoj Ahamad" }],
+  metadataBase: new URL('https://portfolio-website-1dpz.vercel.app'),
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon', type: 'image/png' }
+    ],
+    shortcut: '/favicon.svg',
+    apple: '/apple-icon',
+  },
   openGraph: {
     title: "Firoj Ahamad - Senior Frontend Developer Portfolio",
     description: "Professional portfolio showcasing expertise in React, Next.js, TypeScript, Figma to code conversion, and manual testing",
@@ -20,6 +29,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" />
+        <link rel="alternate icon" href="/icon" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-icon" />
+        <meta name="theme-color" content="#3b82f6" />
+      </head>
       <body className="antialiased">
         {children}
       </body>
