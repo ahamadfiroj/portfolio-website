@@ -35,7 +35,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-icon" />
         <meta name="theme-color" content="#3b82f6" />
       </head>
-      <body className="antialiased">
+      <body className="antialiased overflow-x-hidden">
         {children}
       </body>
     </html>

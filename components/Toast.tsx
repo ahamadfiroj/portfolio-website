@@ -32,12 +32,12 @@ export default function Toast({
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ opacity: 0, y: 50, scale: 0.9 }}
+          initial={{ opacity: 0, y: -50, scale: 0.9 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 50, scale: 0.9 }}
+          exit={{ opacity: 0, y: -50, scale: 0.9 }}
           transition={{ duration: 0.3 }}
-          className="fixed bottom-8 left-[40%]  z-50"
-          style={{ width: 'max-content', maxWidth: '400px' }}
+          className="fixed top-4 right-4 z-50"
+          style={{ width: 'max-content', maxWidth: 'calc(100vw - 32px)' }}
         >
           <div
             className={`p-4 rounded-lg shadow-lg border flex items-start gap-3 ${

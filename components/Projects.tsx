@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import { ExternalLink, ChevronRight } from "lucide-react";
+import { ExternalLink, ChevronRight, X } from "lucide-react";
 import { projects } from "@/lib/data";
 
 export default function Projects() {
@@ -33,24 +33,25 @@ export default function Projects() {
             Showcasing my work and contributions
           </p>
 
-          <div className="flex justify-center gap-4">
-            {["all", "own", "contribution"].map((category) => (
-              <button
-                key={category}
-                onClick={() => setFilter(category)}
-                className={`px-6 py-2 rounded-full font-medium transition-all ${
-                  filter === category
-                    ? "bg-gradient text-white"
-                    : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-                }`}
-              >
-                {category === "all"
-                  ? "All Projects"
-                  : category === "own"
-                  ? "My Projects"
-                  : "Contributions"}
-              </button>
-            ))}
+          <div className="overflow-x-auto pb-2">
+            <div className="flex gap-4 min-w-max px-4 md:justify-center md:px-0">
+              {["all", "own", "contribution"].map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setFilter(category)}
+                  className={`px-6 py-2 rounded-full font-medium transition-all ${filter === category
+                      ? "bg-gradient text-white"
+                      : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    }`}
+                >
+                  {category === "all"
+                    ? "All Projects"
+                    : category === "own"
+                      ? "My Projects"
+                      : "Contributions"}
+                </button>
+              ))}
+            </div>
           </div>
         </motion.div>
 
@@ -132,61 +133,91 @@ export default function Projects() {
 
         <AnimatePresence>
           {selectedProject && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-              onClick={() => setSelectedProject(null)}
-            >
+            <>
+              {/* Backdrop */}
               <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-white dark:bg-gray-800 rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
-                onClick={(e) => e.stopPropagation()}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/50 z-50 md:flex md:items-center md:justify-center md:p-4"
+                onClick={() => setSelectedProject(null)}
               >
-                <div className="p-8">
-                  <h3 className="text-3xl font-bold mb-4">{selectedProject.title}</h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    {selectedProject.longDescription}
-                  </p>
-
-                  <h4 className="font-semibold mb-3">Key Features:</h4>
-                  <ul className="list-disc list-inside mb-6 space-y-1 text-gray-600 dark:text-gray-400">
-                    {selectedProject.features.map((feature) => (
-                      <li key={feature}>{feature}</li>
-                    ))}
-                  </ul>
-
-                  <h4 className="font-semibold mb-3">Technologies Used:</h4>
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {selectedProject.technologies.map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-full"
-                      >
-                        {tech}
-                      </span>
-                    ))}
+                {/* Modal content */}
+                <motion.div
+                  initial={{ y: "100%", opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: "100%", opacity: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut"
+                  }}
+                  className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-gray-800
+                            rounded-t-2xl max-h-[70vh] overflow-hidden flex flex-col
+                            md:relative md:inset-auto md:rounded-xl md:max-w-3xl md:max-h-[90vh] md:w-full"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Mobile drag handle */}
+                  <div
+                    className="md:hidden flex justify-center py-3 cursor-pointer"
+                    onClick={() => setSelectedProject(null)}
+                  >
+                    <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
                   </div>
 
-                  <div className="flex gap-4">
-                    {selectedProject.liveUrl && (
-                      <a
-                        href={selectedProject.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-6 py-3 bg-gradient text-white rounded-lg hover:shadow-lg transition-shadow"
-                      >
-                        <ExternalLink size={20} />
-                        Visit Live Website
-                      </a>
-                    )}
+                  {/* Close button */}
+                  <div className="absolute top-4 right-4 z-10">
+                    <button
+                      onClick={() => setSelectedProject(null)}
+                      className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                    >
+                      <X size={20} className="text-gray-600 dark:text-gray-400" />
+                    </button>
                   </div>
-                </div>
+
+                  <div className="flex-1 overflow-y-auto">
+                    <div className="p-6 md:p-8">
+                      <h3 className="text-3xl font-bold mb-4">{selectedProject.title}</h3>
+                      <p className="text-gray-600 dark:text-gray-400 mb-6">
+                        {selectedProject.longDescription}
+                      </p>
+
+                      <h4 className="font-semibold mb-3">Key Features:</h4>
+                      <ul className="list-disc list-inside mb-6 space-y-1 text-gray-600 dark:text-gray-400">
+                        {selectedProject.features.map((feature) => (
+                          <li key={feature}>{feature}</li>
+                        ))}
+                      </ul>
+
+                      <h4 className="font-semibold mb-3">Technologies Used:</h4>
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {selectedProject.technologies.map((tech) => (
+                          <span
+                            key={tech}
+                            className="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-full"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="flex gap-4">
+                        {selectedProject.liveUrl && (
+                          <a
+                            href={selectedProject.liveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-6 py-3 bg-gradient text-white rounded-lg hover:shadow-lg transition-shadow"
+                          >
+                            <ExternalLink size={20} />
+                            Visit Live Website
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
               </motion.div>
-            </motion.div>
+            </>
           )}
         </AnimatePresence>
       </div>
