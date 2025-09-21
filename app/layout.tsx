@@ -30,8 +30,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" />
-        <link rel="alternate icon" href="/icon" type="image/png" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="apple-touch-icon" href="/apple-icon" />
         <meta name="theme-color" content="#3b82f6" />
       </head>
