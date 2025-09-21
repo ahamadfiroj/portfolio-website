@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   description: "Professional portfolio of Firoj Ahamad showcasing 4+ years of experience transforming Figma designs into interactive web applications using React, Next.js, TypeScript, and comprehensive testing expertise",
   keywords: ["Firoj Ahamad", "Frontend Developer", "React", "Next.js", "TypeScript", "Figma to Code", "Manual Testing", "Portfolio", "Web Developer"],
   authors: [{ name: "Firoj Ahamad" }],
+  icons: {
+    icon: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
   openGraph: {
     title: "Firoj Ahamad - Senior Frontend Developer Portfolio",
     description: "Professional portfolio showcasing expertise in React, Next.js, TypeScript, Figma to code conversion, and manual testing",
