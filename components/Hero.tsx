@@ -38,7 +38,7 @@ export default function Hero() {
             transition={{ delay: 0.2 }}
             className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-4"
           >
-            Hi, I'm{" "}
+            Hi, I&apos;m{" "}
             <span className="text-gradient">{personalInfo.name}</span>
           </motion.h1>
 

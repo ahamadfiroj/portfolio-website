@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import { Send, Mail, Phone, MapPin, Github, Linkedin, CheckCircle } from "lucide-react";
+import { Send, Mail, Phone, MapPin, Github, Linkedin } from "lucide-react";
 import { personalInfo } from "@/lib/data";
 import Toast from "./Toast";
 
@@ -103,7 +103,7 @@ export default function Contact() {
         >
           <h2 className="text-4xl font-bold mb-4">Get In Touch</h2>
           <p className="text-gray-600 dark:text-gray-400">
-            Let's discuss your next project
+            Let&apos;s discuss your next project
           </p>
         </motion.div>
 
@@ -116,7 +116,7 @@ export default function Contact() {
             <h3 className="text-2xl font-semibold mb-6">Contact Information</h3>
             <p className="text-gray-600 dark:text-gray-400 mb-8">
               Feel free to reach out to me for any opportunities or collaborations.
-              I'm always excited to work on new projects and challenges.
+              I&apos;m always excited to work on new projects and challenges.
             </p>
 
             <div className="space-y-4">

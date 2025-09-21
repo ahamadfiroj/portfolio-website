@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import { ExternalLink, Github, ChevronRight, Filter } from "lucide-react";
+import { ExternalLink, ChevronRight } from "lucide-react";
 import { projects } from "@/lib/data";
 
 export default function Projects() {
@@ -151,15 +151,6 @@ export default function Projects() {
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
                     {selectedProject.longDescription}
                   </p>
-
-                  {selectedProject.contribution && (
-                    <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <h4 className="font-semibold mb-2">My Contribution:</h4>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        {selectedProject.contribution}
-                      </p>
-                    </div>
-                  )}
 
                   <h4 className="font-semibold mb-3">Key Features:</h4>
                   <ul className="list-disc list-inside mb-6 space-y-1 text-gray-600 dark:text-gray-400">

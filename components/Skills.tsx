@@ -21,7 +21,7 @@ export default function Skills() {
         >
           <h2 className="text-4xl font-bold mb-4">Skills & Technologies</h2>
           <p className="text-gray-600 dark:text-gray-400">
-            Technologies I've been working with recently
+            Technologies I&apos;ve been working with recently
           </p>
         </motion.div>
 
