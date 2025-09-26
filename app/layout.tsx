@@ -29,12 +29,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="apple-touch-icon" href="/apple-icon" />
-        <meta name="theme-color" content="#3b82f6" />
-      </head>
       <body className="antialiased overflow-x-hidden">
         {children}
       </body>
