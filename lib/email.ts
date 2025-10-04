@@ -1,30 +1,5 @@
 import nodemailer from 'nodemailer';
-
-// Create transporter for Gmail with better error handling
-const createTransporter = () => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.error('❌ Email credentials not configured!');
-    console.error('Missing EMAIL_USER or EMAIL_PASS environment variables');
-    return null;
-  }
-
-  try {
-    return nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      // Add timeout and retry settings
-      connectionTimeout: 60000, // 60 seconds
-      greetingTimeout: 30000,   // 30 seconds
-      socketTimeout: 60000,     // 60 seconds
-    });
-  } catch (error) {
-    console.error('❌ Failed to create email transporter:', error);
-    return null;
-  }
-};
+import { sendEmailViaResend } from './email-alternative';
 
 export interface ContactFormData {
   name: string;
@@ -34,12 +9,46 @@ export interface ContactFormData {
   timestamp: Date;
 }
 
-export async function sendNotificationEmail(formData: ContactFormData) {
+export async function sendNotificationEmail(formData: ContactFormData): Promise<{ success: boolean; message: string; error?: string; messageId?: string; configUsed?: string }> {
   const { name, email, subject, message, timestamp } = formData;
 
-  // Create transporter with error handling
-  const transporter = createTransporter();
-  if (!transporter) {
+  // Try multiple SMTP configurations
+  const smtpConfigs = [
+    // Configuration 1: Gmail with STARTTLS (port 587)
+    {
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+      connectionTimeout: 20000,
+      greetingTimeout: 10000,
+      socketTimeout: 20000,
+      tls: {
+        rejectUnauthorized: false,
+      },
+    },
+    // Configuration 2: Gmail with SSL (port 465)
+    {
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+      connectionTimeout: 20000,
+      greetingTimeout: 10000,
+      socketTimeout: 20000,
+      tls: {
+        rejectUnauthorized: false,
+      },
+    },
+  ];
+
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     return { 
       success: false, 
       message: 'Email service not configured. Please check environment variables.',
@@ -77,40 +86,77 @@ export async function sendNotificationEmail(formData: ContactFormData) {
     `,
   };
 
-  try {
-    console.log('📧 Attempting to send email...');
+  // Try each SMTP configuration until one works
+  for (let i = 0; i < smtpConfigs.length; i++) {
+    const config = smtpConfigs[i];
+    console.log(`📧 Attempting to send email with config ${i + 1}/${smtpConfigs.length}...`);
+    console.log(`Host: ${config.host}, Port: ${config.port}, Secure: ${config.secure}`);
     console.log('From:', process.env.EMAIL_USER);
     console.log('To:', process.env.ADMIN_EMAIL || process.env.EMAIL_USER);
     
-    const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent successfully:', result.messageId);
-    
-    return { 
-      success: true, 
-      message: 'Email sent successfully',
-      messageId: result.messageId
-    };
-  } catch (error) {
-    console.error('❌ Error sending email:', error);
-    
-    // Provide more specific error messages
-    let errorMessage = 'Failed to send email';
-    if (error instanceof Error) {
-      if (error.message.includes('Invalid login')) {
-        errorMessage = 'Invalid email credentials. Please check EMAIL_USER and EMAIL_PASS.';
-      } else if (error.message.includes('timeout')) {
-        errorMessage = 'Email service timeout. Please try again.';
-      } else if (error.message.includes('network')) {
-        errorMessage = 'Network error. Please check your internet connection.';
-      } else {
-        errorMessage = `Email error: ${error.message}`;
+    try {
+      const transporter = nodemailer.createTransport(config);
+      
+      // Test connection first
+      await transporter.verify();
+      console.log('✅ SMTP connection verified');
+      
+      // Send email
+      const result = await transporter.sendMail(mailOptions);
+      console.log('✅ Email sent successfully:', result.messageId);
+      
+      return { 
+        success: true, 
+        message: 'Email sent successfully',
+        messageId: result.messageId,
+        configUsed: `Config ${i + 1} (${config.host}:${config.port})`
+      };
+    } catch (error) {
+      console.error(`❌ Config ${i + 1} failed:`, error);
+      
+      // If this is the last config, try alternative email service
+      if (i === smtpConfigs.length - 1) {
+        console.log('🔄 All SMTP configs failed, trying alternative email service...');
+        
+        // Try Resend API as fallback
+        if (process.env.RESEND_API_KEY) {
+          console.log('📧 Attempting to send via Resend API...');
+          const resendResult = await sendEmailViaResend(formData);
+          if (resendResult.success) {
+            return resendResult;
+          }
+        }
+        
+        // If all methods fail, return error
+        let errorMessage = 'All email methods failed';
+        if (error instanceof Error) {
+          if (error.message.includes('Invalid login')) {
+            errorMessage = 'Invalid email credentials. Please check EMAIL_USER and EMAIL_PASS.';
+          } else if (error.message.includes('timeout') || error.message.includes('ETIMEDOUT')) {
+            errorMessage = 'Email service timeout. Render may be blocking SMTP connections. Consider using Resend API or similar service.';
+          } else if (error.message.includes('network')) {
+            errorMessage = 'Network error. Please check your internet connection.';
+          } else {
+            errorMessage = `Email error: ${error.message}`;
+          }
+        }
+        
+        return { 
+          success: false, 
+          message: errorMessage, 
+          error: error instanceof Error ? error.message : String(error)
+        };
       }
+      
+      // Try next configuration
+      console.log(`🔄 Trying next configuration...`);
     }
-    
-    return { 
-      success: false, 
-      message: errorMessage, 
-      error: error instanceof Error ? error.message : String(error)
-    };
   }
+
+  // This should never be reached, but TypeScript requires it
+  return {
+    success: false,
+    message: 'Unexpected error: No email configuration was attempted',
+    error: 'No SMTP configurations available'
+  };
 }
