@@ -33,7 +33,7 @@ export async function sendEmailViaResend(formData: ContactFormData): Promise<{ s
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Portfolio Contact <noreply@yourdomain.com>',
+        from: 'Portfolio Contact <onboarding@resend.dev>',
         to: [process.env.ADMIN_EMAIL || process.env.EMAIL_USER],
         subject: `New Contact Form Submission: ${formData.subject}`,
         html: `
@@ -96,7 +96,7 @@ export async function sendOTPViaResend(email: string, otp: string, userName: str
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Portfolio Admin <noreply@yourdomain.com>',
+        from: 'Portfolio Admin <onboarding@resend.dev>',
         to: [email],
         subject: '🔐 Password Reset OTP - Portfolio Admin',
         html: `
@@ -179,7 +179,7 @@ export async function sendChatNotificationViaResend(data: NotificationData): Pro
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Portfolio Chat <noreply@yourdomain.com>',
+        from: 'Portfolio Chat <onboarding@resend.dev>',
         to: [adminEmail],
         subject: `💬 New Chat Message from ${data.visitorName}${data.visitorWhatsApp ? ' 📱' : ''}`,
         html: `
