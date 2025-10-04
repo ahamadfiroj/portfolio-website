@@ -4,10 +4,10 @@ const next = require('next');
 const { Server } = require('socket.io');
 
 const dev = process.env.NODE_ENV !== 'production';
-const hostname = 'localhost';
+const hostname = dev ? 'localhost' : '0.0.0.0'; // Allow all connections in production
 const port = parseInt(process.env.PORT || '3000', 10);
 
-const app = next({ dev, hostname, port });
+const app = next({ dev, hostname: dev ? hostname : undefined, port });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
@@ -26,10 +26,14 @@ app.prepare().then(() => {
   const io = new Server(httpServer, {
     cors: {
       origin: process.env.NODE_ENV === 'production' 
-        ? process.env.NEXT_PUBLIC_SITE_URL 
+        ? (process.env.NEXT_PUBLIC_SITE_URL || true) // Allow any origin in production if not set
         : 'http://localhost:3000',
       methods: ['GET', 'POST'],
+      credentials: true,
     },
+    transports: ['websocket', 'polling'], // Support both transports
+    pingTimeout: 60000,
+    pingInterval: 25000,
   });
 
   // Socket.io connection handling
