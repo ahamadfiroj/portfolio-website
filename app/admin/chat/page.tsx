@@ -14,7 +14,7 @@ export default function AdminChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showMobileChat, setShowMobileChat] = useState(false);
-  const [adminName] = useState('Firoj Ahamad');
+  const [adminName, setAdminName] = useState('Admin');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<ReturnType<typeof getSocket> | null>(null);
 
@@ -97,6 +97,22 @@ export default function AdminChatPage() {
       socket.off('new-message');
     };
   }, [selectedConversation, loadConversations]);
+
+  // Load current user info
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch('/api/admin/me');
+        const data = await response.json();
+        if (data.success && data.user) {
+          setAdminName(data.user.fullName || data.user.username);
+        }
+      } catch (error) {
+        console.error('Error fetching current user:', error);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
 
   // Load conversations
   useEffect(() => {

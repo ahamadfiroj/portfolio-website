@@ -119,10 +119,16 @@ export default function AdminLogin() {
         </form>
 
         {/* Footer */}
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center space-y-3">
+          <Link
+            href="/admin/forgot-password"
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors block"
+          >
+            Forgot Password?
+          </Link>
           <Link
             href="/"
-            className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            className="text-sm text-gray-600 hover:text-gray-900 transition-colors block"
           >
             ← Back to Portfolio
           </Link>

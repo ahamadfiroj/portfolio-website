@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SignJWT } from 'jose';
 import bcrypt from 'bcryptjs';
+import { connectToDatabase } from '@/lib/mongodb';
+import { User, sanitizeUser } from '@/models/User';
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'your-secret-key-change-this-in-production'
@@ -18,46 +20,58 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get admin credentials from environment variables
-    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
-    const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
+    // Connect to database
+    const { db } = await connectToDatabase();
+    
+    // Find user by username
+    const user = await db.collection<User>('users').findOne({ 
+      username,
+      isActive: true // Only allow active users to login
+    });
 
-    // Check username
-    if (username !== adminUsername) {
+    if (!user) {
       return NextResponse.json(
         { error: 'Invalid username or password' },
         { status: 401 }
       );
     }
 
-    // Check password
-    let isValidPassword = false;
-    if (adminPasswordHash) {
-      // If hash exists, compare with bcrypt
-      isValidPassword = await bcrypt.compare(password, adminPasswordHash);
-    } else {
-      // Fallback: compare with plain password (NOT RECOMMENDED for production)
-      const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
-      isValidPassword = password === adminPassword;
-    }
-
-    if (!isValidPassword) {
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    
+    if (!isPasswordValid) {
       return NextResponse.json(
         { error: 'Invalid username or password' },
         { status: 401 }
       );
     }
 
-    // Create JWT token
-    const token = await new SignJWT({ username, role: 'admin' })
+    // Update last login
+    await db.collection<User>('users').updateOne(
+      { _id: user._id },
+      { $set: { lastLogin: new Date() } }
+    );
+
+    // Create JWT token with user info
+    const token = await new SignJWT({ 
+      userId: user._id?.toString(),
+      username: user.username,
+      email: user.email,
+      fullName: user.fullName,
+      role: user.role 
+    })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
-      .setExpirationTime('7d') // Token expires in 7 days
+      .setExpirationTime('7d')
       .sign(JWT_SECRET);
 
-    // Create response
+    // Create response with sanitized user data
     const response = NextResponse.json(
-      { success: true, message: 'Login successful' },
+      { 
+        success: true, 
+        message: 'Login successful',
+        user: sanitizeUser(user)
+      },
       { status: 200 }
     );
 
@@ -79,4 +93,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

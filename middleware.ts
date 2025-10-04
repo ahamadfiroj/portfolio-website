@@ -8,10 +8,10 @@ const JWT_SECRET = new TextEncoder().encode(
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Protect /admin/* routes except /admin/login
+  // Protect /admin/* routes except /admin/login and /admin/forgot-password
   if (pathname.startsWith('/admin')) {
-    // Allow access to login page
-    if (pathname === '/admin/login') {
+    // Allow access to login page and forgot password page
+    if (pathname === '/admin/login' || pathname === '/admin/forgot-password') {
       return NextResponse.next();
     }
 
