@@ -1,13 +1,30 @@
 import nodemailer from 'nodemailer';
 
-// Create transporter for Gmail
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER, // Your Gmail address
-    pass: process.env.EMAIL_PASS, // Gmail App Password (not regular password)
-  },
-});
+// Create transporter for Gmail with better error handling
+const createTransporter = () => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.error('❌ Email credentials not configured!');
+    console.error('Missing EMAIL_USER or EMAIL_PASS environment variables');
+    return null;
+  }
+
+  try {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+      // Add timeout and retry settings
+      connectionTimeout: 60000, // 60 seconds
+      greetingTimeout: 30000,   // 30 seconds
+      socketTimeout: 60000,     // 60 seconds
+    });
+  } catch (error) {
+    console.error('❌ Failed to create email transporter:', error);
+    return null;
+  }
+};
 
 export interface ContactFormData {
   name: string;
@@ -20,9 +37,19 @@ export interface ContactFormData {
 export async function sendNotificationEmail(formData: ContactFormData) {
   const { name, email, subject, message, timestamp } = formData;
 
+  // Create transporter with error handling
+  const transporter = createTransporter();
+  if (!transporter) {
+    return { 
+      success: false, 
+      message: 'Email service not configured. Please check environment variables.',
+      error: 'Missing email credentials'
+    };
+  }
+
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER, // Your email to receive notifications
+    to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
     subject: `New Contact Form Submission: ${subject}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -51,10 +78,39 @@ export async function sendNotificationEmail(formData: ContactFormData) {
   };
 
   try {
-    await transporter.sendMail(mailOptions);
-    return { success: true, message: 'Email sent successfully' };
+    console.log('📧 Attempting to send email...');
+    console.log('From:', process.env.EMAIL_USER);
+    console.log('To:', process.env.ADMIN_EMAIL || process.env.EMAIL_USER);
+    
+    const result = await transporter.sendMail(mailOptions);
+    console.log('✅ Email sent successfully:', result.messageId);
+    
+    return { 
+      success: true, 
+      message: 'Email sent successfully',
+      messageId: result.messageId
+    };
   } catch (error) {
-    console.error('Error sending email:', error);
-    return { success: false, message: 'Failed to send email', error };
+    console.error('❌ Error sending email:', error);
+    
+    // Provide more specific error messages
+    let errorMessage = 'Failed to send email';
+    if (error instanceof Error) {
+      if (error.message.includes('Invalid login')) {
+        errorMessage = 'Invalid email credentials. Please check EMAIL_USER and EMAIL_PASS.';
+      } else if (error.message.includes('timeout')) {
+        errorMessage = 'Email service timeout. Please try again.';
+      } else if (error.message.includes('network')) {
+        errorMessage = 'Network error. Please check your internet connection.';
+      } else {
+        errorMessage = `Email error: ${error.message}`;
+      }
+    }
+    
+    return { 
+      success: false, 
+      message: errorMessage, 
+      error: error instanceof Error ? error.message : String(error)
+    };
   }
 }
