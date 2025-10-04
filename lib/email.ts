@@ -119,12 +119,30 @@ export async function sendNotificationEmail(formData: ContactFormData): Promise<
         console.log('🔄 All SMTP configs failed, trying alternative email service...');
         
         // Try Resend API as fallback
+        console.log('🔍 Checking Resend API configuration...');
+        console.log('RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY);
+        
         if (process.env.RESEND_API_KEY) {
           console.log('📧 Attempting to send via Resend API...');
           const resendResult = await sendEmailViaResend(formData);
           if (resendResult.success) {
             return resendResult;
+          } else {
+            console.error('❌ Resend API failed:', resendResult.message);
           }
+        } else {
+          console.log('❌ RESEND_API_KEY not configured. Please set up Resend API for email delivery.');
+          console.log('📝 Setup instructions:');
+          console.log('1. Go to https://resend.com and create account');
+          console.log('2. Get your API key from dashboard');
+          console.log('3. Add RESEND_API_KEY to Render environment variables');
+          
+          // Return error instead of console logging
+          return {
+            success: false,
+            message: 'Email service not available. Please set up Resend API.',
+            error: 'RESEND_API_KEY not configured'
+          };
         }
         
         // If all methods fail, return error

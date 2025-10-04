@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { sendOTPViaResend } from './email-alternative';
 
 // Generate 6-digit OTP
 export function generateOTP(): string {
@@ -188,12 +189,26 @@ This is an automated email. Please do not reply to this message.
         console.log('🔄 All SMTP configs failed for OTP, trying alternative email service...');
         
         // Try Resend API as fallback
+        console.log('🔍 Checking Resend API configuration for OTP...');
+        console.log('RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY);
+        
         if (process.env.RESEND_API_KEY) {
           console.log('📧 Attempting to send OTP via Resend API...');
           const resendResult = await sendOTPViaResend(email, otp, userName);
           if (resendResult.success) {
             return true;
+          } else {
+            console.error('❌ Resend API failed for OTP:', resendResult.message);
           }
+        } else {
+          console.log('❌ RESEND_API_KEY not configured. Please set up Resend API for email delivery.');
+          console.log('📝 Setup instructions:');
+          console.log('1. Go to https://resend.com and create account');
+          console.log('2. Get your API key from dashboard');
+          console.log('3. Add RESEND_API_KEY to Render environment variables');
+          
+          // Return false since OTP cannot be sent
+          return false;
         }
         
         console.error('❌ All OTP email methods failed');
@@ -208,75 +223,4 @@ This is an automated email. Please do not reply to this message.
   return false;
 }
 
-// Resend API implementation for OTP
-async function sendOTPViaResend(email: string, otp: string, userName: string): Promise<{ success: boolean; message: string; error?: string; messageId?: string }> {
-  if (!process.env.RESEND_API_KEY) {
-    return {
-      success: false,
-      message: 'RESEND_API_KEY not configured'
-    };
-  }
-
-  try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Portfolio Admin <noreply@yourdomain.com>',
-        to: [email],
-        subject: '🔐 Password Reset OTP - Portfolio Admin',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; padding: 30px; color: white;">
-              <h1 style="margin: 0 0 20px 0;">🔐 Password Reset Request</h1>
-              <p>Hello <strong>${userName}</strong>,</p>
-              <p>We received a request to reset your password for the Admin Panel. Use the OTP code below to proceed:</p>
-              <div style="background: white; color: #333; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
-                <p style="margin: 0 0 10px 0; font-size: 14px; color: #666;">Your OTP Code</p>
-                <div style="font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #667eea; font-family: 'Courier New', monospace;">${otp}</div>
-                <p style="margin: 10px 0 0 0; font-size: 12px; color: #999;">Valid for 10 minutes</p>
-              </div>
-              <div style="background: rgba(255, 255, 255, 0.1); border-left: 4px solid #fbbf24; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <p style="margin: 0;"><strong>⚠️ Security Notice:</strong></p>
-                <ul style="margin: 10px 0 0 0; padding-left: 20px;">
-                  <li>Never share this OTP with anyone</li>
-                  <li>This code expires in 10 minutes</li>
-                  <li>If you didn't request this, please ignore this email</li>
-                </ul>
-              </div>
-              <p>Enter this OTP on the password reset page to continue.</p>
-              <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.3); font-size: 14px; opacity: 0.9;">
-                <p style="margin: 0;">Best regards,<br><strong>Portfolio Admin Team</strong></p>
-                <p style="margin: 10px 0 0 0; font-size: 12px;">This is an automated email. Please do not reply to this message.</p>
-              </div>
-            </div>
-          </div>
-        `,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Resend API error: ${response.status} ${response.statusText}`);
-    }
-
-    const result = await response.json();
-    console.log('✅ OTP email sent via Resend:', result.id);
-    
-    return {
-      success: true,
-      message: 'OTP email sent successfully via Resend',
-      messageId: result.id
-    };
-  } catch (error) {
-    console.error('❌ Resend API error for OTP:', error);
-    return {
-      success: false,
-      message: 'Failed to send OTP email via Resend',
-      error: error instanceof Error ? error.message : String(error)
-    };
-  }
-}
 
