@@ -120,6 +120,7 @@ export default function AdminChatLayout({
         <Toast
           message={toastMessage}
           onClose={() => setShowToast(false)}
+          isVisible={showToast}
         />
       )}
 

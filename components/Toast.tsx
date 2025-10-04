@@ -12,7 +12,7 @@ interface ToastProps {
   isVisible?: boolean;
 }
 
-export default function Toast({ message, onClose, duration = 3000 }: ToastProps) {
+export default function Toast({ message, onClose, duration = 3000, isVisible = false }: ToastProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
@@ -20,6 +20,8 @@ export default function Toast({ message, onClose, duration = 3000 }: ToastProps)
 
     return () => clearTimeout(timer);
   }, [duration, onClose]);
+
+  if (!isVisible) return null;
 
   return (
     <div className="fixed top-4 right-4 z-[200] animate-slide-in">
