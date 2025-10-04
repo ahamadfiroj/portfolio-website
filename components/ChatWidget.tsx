@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MessageCircle, X, Send } from 'lucide-react';
+import { MessageCircle, X, Send, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getSocket } from '@/lib/socket';
 import type { Message } from '@/models/Chat';
@@ -17,6 +17,7 @@ export default function ChatWidget() {
   const [isLoading, setIsLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<ReturnType<typeof getSocket> | null>(null);
 
@@ -155,6 +156,20 @@ export default function ChatWidget() {
     }
   };
 
+  const handleSyncMessages = async () => {
+    if (!visitorId || isSyncing) return;
+    
+    setIsSyncing(true);
+    try {
+      await loadMessages(visitorId);
+      console.log('Messages synced successfully');
+    } catch (error) {
+      console.error('Error syncing messages:', error);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   return (
     <>
       {/* Floating Chat Button */}
@@ -227,12 +242,22 @@ export default function ChatWidget() {
                   <h3 className="font-semibold text-lg">Chat with Firoj</h3>
                   <p className="text-sm opacity-90">I&apos;ll reply as soon as I can!</p>
                 </div>
-                <button
-                  onClick={toggleChat}
-                  className="hover:bg-white/20 rounded-full p-1 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleSyncMessages}
+                    disabled={isSyncing}
+                    className="hover:bg-white/20 rounded-full p-1 transition-colors disabled:opacity-50"
+                    title="Sync messages"
+                  >
+                    <RefreshCw className={`w-5 h-5 ${isSyncing ? 'animate-spin' : ''}`} />
+                  </button>
+                  <button
+                    onClick={toggleChat}
+                    className="hover:bg-white/20 rounded-full p-1 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
               {!isNameSet ? (
