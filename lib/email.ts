@@ -5,7 +5,7 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER, // Your Gmail address
-    pass: process.env.EMAIL_APP_PASSWORD, // Gmail App Password (not regular password)
+    pass: process.env.EMAIL_PASS, // Gmail App Password (not regular password)
   },
 });
 
@@ -22,7 +22,7 @@ export async function sendNotificationEmail(formData: ContactFormData) {
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: process.env.NOTIFICATION_EMAIL || process.env.EMAIL_USER, // Your email to receive notifications
+    to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER, // Your email to receive notifications
     subject: `New Contact Form Submission: ${subject}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">

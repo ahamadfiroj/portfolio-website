@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import ClientWidgets from "@/components/ClientWidgets";
 
 export const metadata: Metadata = {
   title: "Firoj Ahamad - Senior Frontend Developer Portfolio",
@@ -31,6 +32,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased overflow-x-hidden">
         {children}
+        <ClientWidgets />
       </body>
     </html>
   );
