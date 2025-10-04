@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { MessageCircle, Send, Users, Archive, RefreshCw, ArrowLeft } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { MessageCircle, Send, Users, RefreshCw, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getSocket } from '@/lib/socket';
 import type { Message, Conversation } from '@/models/Chat';
@@ -17,6 +17,55 @@ export default function AdminChatPage() {
   const [adminName] = useState('Firoj Ahamad');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<ReturnType<typeof getSocket> | null>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const loadConversations = useCallback(async (showLoader = false) => {
+    if (showLoader) {
+      setIsRefreshing(true);
+    }
+    try {
+      const response = await fetch('/api/chat/conversations');
+      const data = await response.json();
+      if (data.success) {
+        setConversations(data.conversations);
+      }
+    } catch (error) {
+      console.error('Error loading conversations:', error);
+    } finally {
+      if (showLoader) {
+        setIsRefreshing(false);
+      }
+    }
+  }, []);
+
+  const loadMessages = useCallback(async (conversationId: string) => {
+    try {
+      const response = await fetch(`/api/chat/messages?conversationId=${conversationId}`);
+      const data = await response.json();
+      if (data.success) {
+        setMessages(data.messages);
+        setTimeout(scrollToBottom, 100);
+      }
+    } catch (error) {
+      console.error('Error loading messages:', error);
+    }
+  }, []);
+
+  const markAsRead = useCallback(async (conversationId: string) => {
+    try {
+      await fetch('/api/chat/messages', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId }),
+      });
+      loadConversations();
+    } catch (error) {
+      console.error('Error marking as read:', error);
+    }
+  }, [loadConversations]);
 
   // Initialize socket connection
   useEffect(() => {
@@ -47,12 +96,12 @@ export default function AdminChatPage() {
       socket.off('admin-notification');
       socket.off('new-message');
     };
-  }, [selectedConversation]);
+  }, [selectedConversation, loadConversations]);
 
   // Load conversations
   useEffect(() => {
     loadConversations();
-  }, []);
+  }, [loadConversations]);
 
   // Auto-select conversation from URL parameter
   useEffect(() => {
@@ -81,56 +130,7 @@ export default function AdminChatPage() {
         socketRef.current?.emit('leave-conversation', selectedConversation.visitorId);
       }
     };
-  }, [selectedConversation]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const loadConversations = async (showLoader = false) => {
-    if (showLoader) {
-      setIsRefreshing(true);
-    }
-    try {
-      const response = await fetch('/api/chat/conversations');
-      const data = await response.json();
-      if (data.success) {
-        setConversations(data.conversations);
-      }
-    } catch (error) {
-      console.error('Error loading conversations:', error);
-    } finally {
-      if (showLoader) {
-        setIsRefreshing(false);
-      }
-    }
-  };
-
-  const loadMessages = async (conversationId: string) => {
-    try {
-      const response = await fetch(`/api/chat/messages?conversationId=${conversationId}`);
-      const data = await response.json();
-      if (data.success) {
-        setMessages(data.messages);
-        setTimeout(scrollToBottom, 100);
-      }
-    } catch (error) {
-      console.error('Error loading messages:', error);
-    }
-  };
-
-  const markAsRead = async (conversationId: string) => {
-    try {
-      await fetch('/api/chat/messages', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ conversationId }),
-      });
-      loadConversations();
-    } catch (error) {
-      console.error('Error marking as read:', error);
-    }
-  };
+  }, [selectedConversation, loadMessages, markAsRead]);
 
   const handleSelectConversation = (conversation: Conversation) => {
     setSelectedConversation(conversation);

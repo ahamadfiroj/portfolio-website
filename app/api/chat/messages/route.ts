@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Message, Conversation } from '@/models/Chat';
-import { ObjectId } from 'mongodb';
 import { sendNewMessageNotifications } from '@/lib/notifications';
 
 export async function GET(request: NextRequest) {

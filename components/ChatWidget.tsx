@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getSocket } from '@/lib/socket';
@@ -19,6 +19,23 @@ export default function ChatWidget() {
   const [isHovered, setIsHovered] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<ReturnType<typeof getSocket> | null>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const loadMessages = useCallback(async (id: string) => {
+    try {
+      const response = await fetch(`/api/chat/messages?conversationId=${id}`);
+      const data = await response.json();
+      if (data.success) {
+        setMessages(data.messages);
+        setTimeout(scrollToBottom, 100);
+      }
+    } catch (error) {
+      console.error('Error loading messages:', error);
+    }
+  }, []);
 
   // Generate or retrieve visitor ID
   useEffect(() => {
@@ -39,7 +56,7 @@ export default function ChatWidget() {
       setIsNameSet(true);
       loadMessages(id);
     }
-  }, []);
+  }, [loadMessages]);
 
   // Initialize socket connection
   useEffect(() => {
@@ -63,23 +80,6 @@ export default function ChatWidget() {
       };
     }
   }, [isNameSet, visitorId, isOpen]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const loadMessages = async (id: string) => {
-    try {
-      const response = await fetch(`/api/chat/messages?conversationId=${id}`);
-      const data = await response.json();
-      if (data.success) {
-        setMessages(data.messages);
-        setTimeout(scrollToBottom, 100);
-      }
-    } catch (error) {
-      console.error('Error loading messages:', error);
-    }
-  };
 
   const handleSetName = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -225,7 +225,7 @@ export default function ChatWidget() {
               <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 flex items-center justify-between">
                 <div>
                   <h3 className="font-semibold text-lg">Chat with Firoj</h3>
-                  <p className="text-sm opacity-90">I'll reply as soon as I can!</p>
+                  <p className="text-sm opacity-90">I&apos;ll reply as soon as I can!</p>
                 </div>
                 <button
                   onClick={toggleChat}
@@ -241,7 +241,7 @@ export default function ChatWidget() {
                   <form onSubmit={handleSetName} className="w-full max-w-sm space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        What's your name? <span className="text-red-500">*</span>
+                        What&apos;s your name? <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"

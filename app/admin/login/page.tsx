@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Lock, User, AlertCircle } from 'lucide-react';
 
 export default function AdminLogin() {
@@ -32,7 +33,7 @@ export default function AdminLogin() {
       } else {
         setError(data.error || 'Invalid credentials');
       }
-    } catch (error) {
+    } catch {
       setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -119,12 +120,12 @@ export default function AdminLogin() {
 
         {/* Footer */}
         <div className="mt-6 text-center">
-          <a
+          <Link
             href="/"
             className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
           >
             ← Back to Portfolio
-          </a>
+          </Link>
         </div>
       </div>
     </div>

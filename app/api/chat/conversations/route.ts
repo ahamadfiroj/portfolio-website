@@ -6,7 +6,8 @@ export async function GET(request: NextRequest) {
   try {
     const { db } = await connectToDatabase();
     const searchParams = request.nextUrl.searchParams;
-    const status = searchParams.get('status') || 'active';
+    const statusParam = searchParams.get('status');
+    const status: 'active' | 'archived' = statusParam === 'archived' ? 'archived' : 'active';
 
     const conversations = await db
       .collection<Conversation>('conversations')
