@@ -87,12 +87,12 @@ export default function Contact() {
 
   return (
     <>
-      <Toast
+      {toast.isVisible && <Toast
         message={toast.message}
         type={toast.type}
         isVisible={toast.isVisible}
         onClose={closeToast}
-      />
+      />}
       <section id="contact" className="py-20" ref={ref}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
