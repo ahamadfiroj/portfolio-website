@@ -1,4 +1,3 @@
-import nodemailer from 'nodemailer';
 import { sendChatNotificationViaResend } from './email-alternative';
 
 // WhatsApp: We use FREE direct links in email instead of paid Twilio API!
@@ -12,11 +11,16 @@ interface NotificationData {
 }
 
 /**
- * Send email notification when a visitor sends a message
+ * Send email notification when a visitor sends a message via Resend API only
  */
 export async function sendEmailNotification(data: NotificationData): Promise<boolean> {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.warn('❌ Email credentials not configured. Email notifications disabled.');
+  console.log('📧 Sending chat notification via Resend API...');
+  console.log('From: Portfolio Chat <onboarding@resend.dev>');
+  console.log('To:', process.env.ADMIN_EMAIL);
+
+  // Check if Resend API key is configured
+  if (!process.env.RESEND_API_KEY) {
+    console.log('❌ RESEND_API_KEY not configured. Please set up Resend API for email delivery.');
     return false;
   }
 
@@ -26,168 +30,21 @@ export async function sendEmailNotification(data: NotificationData): Promise<boo
     return false;
   }
 
-  // Try multiple SMTP configurations
-  const smtpConfigs = [
-    // Configuration 1: Gmail with STARTTLS (port 587)
-    {
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      connectionTimeout: 20000,
-      greetingTimeout: 10000,
-      socketTimeout: 20000,
-      tls: {
-        rejectUnauthorized: false,
-      },
-    },
-    // Configuration 2: Gmail with SSL (port 465)
-    {
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      connectionTimeout: 20000,
-      greetingTimeout: 10000,
-      socketTimeout: 20000,
-      tls: {
-        rejectUnauthorized: false,
-      },
-    },
-  ];
-
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  const chatLink = `${siteUrl}/admin/chat?conversation=${data.conversationId}`;
-  
-  // Create WhatsApp link if visitor provided number
-  const whatsappLink = data.visitorWhatsApp 
-    ? `https://wa.me/${data.visitorWhatsApp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${data.visitorName}, thanks for contacting me!`)}`
-    : null;
-
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: adminEmail,
-    subject: `💬 New Chat Message from ${data.visitorName}${data.visitorWhatsApp ? ' 📱' : ''}`,
-    html: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px 10px 0 0; }
-          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-          .message-box { background: white; border-left: 4px solid #667eea; padding: 15px; margin: 20px 0; border-radius: 5px; }
-          .button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
-          .footer { text-align: center; color: #666; font-size: 12px; margin-top: 20px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h2>💬 New Chat Message</h2>
-          </div>
-          <div class="content">
-            <p><strong>From:</strong> ${data.visitorName}</p>
-            ${data.visitorWhatsApp ? `<p><strong>WhatsApp:</strong> <a href="${whatsappLink}">${data.visitorWhatsApp}</a></p>` : ''}
-            <div class="message-box">
-              <p><strong>Message:</strong></p>
-              <p>${data.message}</p>
-            </div>
-            <p>A visitor has sent you a message through your portfolio website!</p>
-            <div style="margin: 20px 0;">
-              <a href="${chatLink}" class="button" style="margin-right: 10px;">💬 Reply in Chat</a>
-              ${data.visitorWhatsApp ? `<a href="${whatsappLink}" class="button" style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);">📱 Message on WhatsApp</a>` : ''}
-            </div>
-            <p style="margin-top: 20px; font-size: 14px; color: #666;">
-              Chat Dashboard: <a href="${chatLink}">${chatLink}</a>
-              ${data.visitorWhatsApp ? `<br>WhatsApp Direct: <a href="${whatsappLink}">${whatsappLink}</a>` : ''}
-            </p>
-          </div>
-          <div class="footer">
-            <p>This is an automated notification from your portfolio chat system.</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
-    text: `
-New Chat Message from ${data.visitorName}
-${data.visitorWhatsApp ? `WhatsApp: ${data.visitorWhatsApp}` : ''}
-
-Message: ${data.message}
-
-Reply in Chat: ${chatLink}
-${data.visitorWhatsApp ? `Message on WhatsApp: ${whatsappLink}` : ''}
-    `,
-  };
-
-  // Try each SMTP configuration until one works
-  for (let i = 0; i < smtpConfigs.length; i++) {
-    const config = smtpConfigs[i];
-    console.log(`📧 Attempting to send chat notification with config ${i + 1}/${smtpConfigs.length}...`);
-    console.log(`Host: ${config.host}, Port: ${config.port}, Secure: ${config.secure}`);
-    console.log('To:', adminEmail);
+  try {
+    const result = await sendChatNotificationViaResend(data);
     
-    try {
-      const transporter = nodemailer.createTransport(config);
-      
-      // Test connection first
-      await transporter.verify();
-      console.log('✅ SMTP connection verified for chat notification');
-      
-      // Send email
-      const result = await transporter.sendMail(mailOptions);
-      console.log(`✅ Email notification sent for conversation: ${data.conversationId}`, result.messageId);
+    if (result.success) {
+      console.log('✅ Chat notification sent successfully via Resend:', result.messageId);
       return true;
-    } catch (error) {
-      console.error(`❌ Chat Config ${i + 1} failed:`, error);
-      
-      // If this is the last config, try alternative email service
-      if (i === smtpConfigs.length - 1) {
-        console.log('🔄 All SMTP configs failed for chat notification, trying alternative email service...');
-        
-        // Try Resend API as fallback
-        console.log('🔍 Checking Resend API configuration for chat notification...');
-        console.log('RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY);
-        
-        if (process.env.RESEND_API_KEY) {
-          console.log('📧 Attempting to send chat notification via Resend API...');
-          const resendResult = await sendChatNotificationViaResend(data);
-          if (resendResult.success) {
-            return true;
-          } else {
-            console.error('❌ Resend API failed for chat notification:', resendResult.message);
-          }
-        } else {
-          console.log('❌ RESEND_API_KEY not configured. Please set up Resend API for email delivery.');
-          console.log('📝 Setup instructions:');
-          console.log('1. Go to https://resend.com and create account');
-          console.log('2. Get your API key from dashboard');
-          console.log('3. Add RESEND_API_KEY to Render environment variables');
-          
-          // Return false since notification cannot be sent
-          return false;
-        }
-        
-        console.error('❌ All chat notification email methods failed');
-        return false;
-      }
-      
-      // Try next configuration
-      console.log(`🔄 Trying next chat notification configuration...`);
+    } else {
+      console.error('❌ Resend API failed:', result.message);
+      return false;
     }
+  } catch (error) {
+    console.error('❌ Unexpected error sending chat notification:', error);
+    return false;
   }
-
-  return false;
 }
-
 
 /**
  * WhatsApp links are included in email - FREE forever!
