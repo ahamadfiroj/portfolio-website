@@ -1,14 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { MessageCircle, X, Send, RefreshCw } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { MessageCircle, X, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getSocket } from '@/lib/socket';
-import type { Message } from '@/models/Chat';
+import ChatMessages from './ChatMessages';
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [visitorId, setVisitorId] = useState('');
   const [visitorName, setVisitorName] = useState('');
@@ -17,28 +15,8 @@ export default function ChatWidget() {
   const [isLoading, setIsLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const socketRef = useRef<ReturnType<typeof getSocket> | null>(null);
+  const [sentMessage, setSentMessage] = useState(false);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const loadMessages = useCallback(async (id: string) => {
-    try {
-      const response = await fetch(`/api/chat/messages?conversationId=${id}`);
-      const data = await response.json();
-      if (data.success) {
-        setMessages(data.messages);
-        setTimeout(scrollToBottom, 100);
-      }
-    } catch (error) {
-      console.error('Error loading messages:', error);
-    }
-  }, []);
-
-  // Generate or retrieve visitor ID
   useEffect(() => {
     let id = localStorage.getItem('visitorId');
     if (!id) {
@@ -46,41 +24,7 @@ export default function ChatWidget() {
       localStorage.setItem('visitorId', id);
     }
     setVisitorId(id);
-
-    const savedName = localStorage.getItem('visitorName');
-    const savedWhatsApp = localStorage.getItem('visitorWhatsApp');
-    if (savedName) {
-      setVisitorName(savedName);
-      if (savedWhatsApp) {
-        setVisitorWhatsApp(savedWhatsApp);
-      }
-      setIsNameSet(true);
-      loadMessages(id);
-    }
-  }, [loadMessages]);
-
-  // Initialize socket connection
-  useEffect(() => {
-    if (isNameSet && visitorId) {
-      socketRef.current = getSocket();
-      const socket = socketRef.current;
-
-      socket.emit('join-conversation', visitorId);
-
-      socket.on('new-message', (message: Message) => {
-        setMessages((prev) => [...prev, message]);
-        if (message.sender === 'admin' && !isOpen) {
-          setUnreadCount((prev) => prev + 1);
-        }
-        scrollToBottom();
-      });
-
-      return () => {
-        socket.off('new-message');
-        socket.emit('leave-conversation', visitorId);
-      };
-    }
-  }, [isNameSet, visitorId, isOpen]);
+  }, []);
 
   const handleSetName = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,7 +50,6 @@ export default function ChatWidget() {
           localStorage.setItem('visitorWhatsApp', visitorWhatsApp.trim());
         }
         setIsNameSet(true);
-        await loadMessages(visitorId);
       }
     } catch (error) {
       console.error('Error setting name:', error);
@@ -114,6 +57,14 @@ export default function ChatWidget() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const visitorName = localStorage.getItem('visitorName');
+    if (visitorName) {
+      setVisitorName(visitorName);
+      setIsNameSet(true);
+    }
+  }, []);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,11 +89,8 @@ export default function ChatWidget() {
       });
 
       const data = await response.json();
-      if (data.success && socketRef.current) {
-        socketRef.current.emit('send-message', {
-          conversationId: visitorId,
-          message: data.message,
-        });
+      if (data.success) {
+        setSentMessage((prev)=>!prev);
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -153,20 +101,6 @@ export default function ChatWidget() {
     setIsOpen(!isOpen);
     if (!isOpen) {
       setUnreadCount(0);
-    }
-  };
-
-  const handleSyncMessages = async () => {
-    if (!visitorId || isSyncing) return;
-    
-    setIsSyncing(true);
-    try {
-      await loadMessages(visitorId);
-      console.log('Messages synced successfully');
-    } catch (error) {
-      console.error('Error syncing messages:', error);
-    } finally {
-      setIsSyncing(false);
     }
   };
 
@@ -244,14 +178,6 @@ export default function ChatWidget() {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={handleSyncMessages}
-                    disabled={isSyncing}
-                    className="hover:bg-white/20 rounded-full p-1 transition-colors disabled:opacity-50"
-                    title="Sync messages"
-                  >
-                    <RefreshCw className={`w-5 h-5 ${isSyncing ? 'animate-spin' : ''}`} />
-                  </button>
-                  <button
                     onClick={toggleChat}
                     className="hover:bg-white/20 rounded-full p-1 transition-colors"
                   >
@@ -306,47 +232,7 @@ export default function ChatWidget() {
               ) : (
                 <>
                   {/* Messages */}
-                  <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
-                    {messages.length === 0 ? (
-                      <div className="text-center text-gray-500 mt-8">
-                        <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                        <p>No messages yet. Start the conversation!</p>
-                      </div>
-                    ) : (
-                      messages.map((msg, index) => (
-                        <div
-                          key={index}
-                          className={`flex ${
-                            msg.sender === 'visitor' ? 'justify-end' : 'justify-start'
-                          }`}
-                        >
-                          <div
-                            className={`max-w-[80%] sm:max-w-[75%] rounded-lg px-4 py-2 ${
-                              msg.sender === 'visitor'
-                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
-                                : 'bg-white text-gray-800 border border-gray-200'
-                            }`}
-                          >
-                            <p className="text-sm break-words">{msg.message}</p>
-                            <p
-                              className={`text-xs mt-1 ${
-                                msg.sender === 'visitor'
-                                  ? 'text-blue-100'
-                                  : 'text-gray-500'
-                              }`}
-                            >
-                              {new Date(msg.timestamp).toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
-                            </p>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                    <div ref={messagesEndRef} />
-                  </div>
-
+                  { isOpen && <ChatMessages visitorId={visitorId} sentMessage={sentMessage} isOpen={isOpen}/>}
                   {/* Input */}
                   <form onSubmit={handleSendMessage} className="p-4 bg-white border-t safe-bottom">
                     <div className="flex gap-2">

@@ -1,26 +1,20 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MessageCircle, Send, Users, RefreshCw, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getSocket } from '@/lib/socket';
-import type { Message, Conversation } from '@/models/Chat';
+import type { Conversation } from '@/models/Chat';
+import ChatMessages from '@/components/ChatMessages';
 
 export default function AdminChatPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showMobileChat, setShowMobileChat] = useState(false);
   const [adminName, setAdminName] = useState('Admin');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const socketRef = useRef<ReturnType<typeof getSocket> | null>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const [sentMessage, setSentMessage] = useState(false);
 
   const loadConversations = useCallback(async (showLoader = false) => {
     if (showLoader) {
@@ -41,18 +35,6 @@ export default function AdminChatPage() {
     }
   }, []);
 
-  const loadMessages = useCallback(async (conversationId: string) => {
-    try {
-      const response = await fetch(`/api/chat/messages?conversationId=${conversationId}`);
-      const data = await response.json();
-      if (data.success) {
-        setMessages(data.messages);
-        setTimeout(scrollToBottom, 100);
-      }
-    } catch (error) {
-      console.error('Error loading messages:', error);
-    }
-  }, []);
 
   const markAsRead = useCallback(async (conversationId: string) => {
     try {
@@ -66,37 +48,6 @@ export default function AdminChatPage() {
       console.error('Error marking as read:', error);
     }
   }, [loadConversations]);
-
-  // Initialize socket connection
-  useEffect(() => {
-    socketRef.current = getSocket();
-    const socket = socketRef.current;
-
-    socket.emit('join-admin');
-
-    socket.on('admin-notification', ({ conversationId, message }) => {
-      // Update conversations list
-      loadConversations();
-      
-      // If viewing this conversation, add message
-      if (selectedConversation?.visitorId === conversationId) {
-        setMessages((prev) => [...prev, message]);
-        scrollToBottom();
-      }
-    });
-
-    socket.on('new-message', (message: Message) => {
-      if (selectedConversation?.visitorId === message.conversationId) {
-        setMessages((prev) => [...prev, message]);
-        scrollToBottom();
-      }
-    });
-
-    return () => {
-      socket.off('admin-notification');
-      socket.off('new-message');
-    };
-  }, [selectedConversation, loadConversations]);
 
   // Load current user info
   useEffect(() => {
@@ -136,17 +87,10 @@ export default function AdminChatPage() {
   // Load messages when conversation selected
   useEffect(() => {
     if (selectedConversation) {
-      loadMessages(selectedConversation.visitorId);
       markAsRead(selectedConversation.visitorId);
-      socketRef.current?.emit('join-conversation', selectedConversation.visitorId);
     }
 
-    return () => {
-      if (selectedConversation) {
-        socketRef.current?.emit('leave-conversation', selectedConversation.visitorId);
-      }
-    };
-  }, [selectedConversation, loadMessages, markAsRead]);
+  }, [selectedConversation, markAsRead]);
 
   const handleSelectConversation = (conversation: Conversation) => {
     setSelectedConversation(conversation);
@@ -182,12 +126,8 @@ export default function AdminChatPage() {
       });
 
       const data = await response.json();
-      if (data.success && socketRef.current) {
-        socketRef.current.emit('send-message', {
-          conversationId: selectedConversation.visitorId,
-          message: data.message,
-        });
-        loadConversations();
+      if (data.success) {
+        setSentMessage((prev)=>!prev);
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -302,12 +242,11 @@ export default function AdminChatPage() {
             {selectedConversation ? (
               <ChatArea
                 selectedConversation={selectedConversation}
-                messages={messages}
+                sentMessage={sentMessage}
                 newMessage={newMessage}
                 setNewMessage={setNewMessage}
                 handleSendMessage={handleSendMessage}
                 isLoading={isLoading}
-                messagesEndRef={messagesEndRef}
               />
             ) : (
               <div className="flex-1 flex items-center justify-center text-gray-500">
@@ -361,12 +300,11 @@ export default function AdminChatPage() {
 
                 <ChatArea
                   selectedConversation={selectedConversation}
-                  messages={messages}
+                  sentMessage={sentMessage}
                   newMessage={newMessage}
                   setNewMessage={setNewMessage}
                   handleSendMessage={handleSendMessage}
                   isLoading={isLoading}
-                  messagesEndRef={messagesEndRef}
                   isMobile={true}
                 />
               </motion.div>
@@ -381,21 +319,19 @@ export default function AdminChatPage() {
 // Separate Chat Area Component
 function ChatArea({
   selectedConversation,
-  messages,
+  sentMessage,
   newMessage,
   setNewMessage,
   handleSendMessage,
   isLoading,
-  messagesEndRef,
   isMobile = false,
 }: {
   selectedConversation: Conversation;
-  messages: Message[];
+  sentMessage: boolean;
   newMessage: string;
   setNewMessage: (value: string) => void;
   handleSendMessage: (e: React.FormEvent) => void;
   isLoading: boolean;
-  messagesEndRef: React.RefObject<HTMLDivElement | null>;
   isMobile?: boolean;
 }) {
   return (
@@ -432,50 +368,7 @@ function ChatArea({
         </div>
       )}
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
-        {messages.length === 0 ? (
-          <div className="text-center text-gray-500 mt-12">
-            <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p>No messages yet in this conversation</p>
-          </div>
-        ) : (
-          messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex ${
-                msg.sender === 'admin' ? 'justify-end' : 'justify-start'
-              }`}
-            >
-              <div
-                className={`max-w-[85%] sm:max-w-[75%] rounded-lg px-3 sm:px-4 py-2 ${
-                  msg.sender === 'admin'
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
-                    : 'bg-white text-gray-800 border border-gray-200'
-                }`}
-              >
-                <p className="text-xs sm:text-sm font-medium mb-1">
-                  {msg.sender === 'admin' ? 'You' : msg.senderName}
-                </p>
-                <p className="text-sm break-words">{msg.message}</p>
-                <p
-                  className={`text-xs mt-1 ${
-                    msg.sender === 'admin' ? 'text-blue-100' : 'text-gray-500'
-                  }`}
-                >
-                  {new Date(msg.timestamp).toLocaleString([], {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </p>
-              </div>
-            </div>
-          ))
-        )}
-        <div ref={messagesEndRef} />
-      </div>
+      {selectedConversation?.visitorId && <ChatMessages visitorId={selectedConversation?.visitorId} sentMessage={sentMessage} isAdmin={true} />}
 
       {/* Input */}
       <form onSubmit={handleSendMessage} className="p-3 sm:p-4 border-t bg-white">
