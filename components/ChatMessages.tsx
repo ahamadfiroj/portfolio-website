@@ -33,11 +33,16 @@ export default function ChatMessages({ visitorId, sentMessage, isAdmin, isOpen }
     }, []);
 
     useEffect(() => {
-        if (sentMessage || isOpen || visitorId) {
+        if (sentMessage) {
             loadMessages(visitorId);
         }
-    }, [sentMessage, isOpen, visitorId]);
+    }, [sentMessage]);
 
+    useEffect(() => {
+        if (visitorId) {
+            loadMessages(visitorId);
+        }
+    }, [visitorId]);
 
     useEffect(() => {
         const interval = setInterval(() => {
