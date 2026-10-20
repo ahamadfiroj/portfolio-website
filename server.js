@@ -11,6 +11,7 @@ const app = next({ dev, hostname: dev ? hostname : undefined, port });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
+  const handleUpgrade = app.getUpgradeHandler();
   const httpServer = createServer(async (req, res) => {
     try {
       const parsedUrl = parse(req.url, true);
@@ -34,6 +35,16 @@ app.prepare().then(() => {
     transports: ['websocket', 'polling'], // Support both transports
     pingTimeout: 60000,
     pingInterval: 25000,
+    // Leave non-Socket.io upgrades (Next.js dev reload socket) alone.
+    // Socket.io destroys them by default, which breaks hot reload and
+    // makes the browser fail to load page chunks after a while.
+    destroyUpgrade: false,
+  });
+
+  // Hand every WebSocket upgrade that isn't Socket.io to Next.js.
+  httpServer.on('upgrade', (req, socket, head) => {
+    if (req.url && req.url.startsWith('/socket.io')) return;
+    handleUpgrade(req, socket, head);
   });
 
   // Socket.io connection handling

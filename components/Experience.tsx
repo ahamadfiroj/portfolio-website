@@ -1,99 +1,59 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
-import { Calendar, Building, Award } from "lucide-react";
-import { experience } from "@/lib/data";
+import { education, experience } from "@/lib/data";
 
 export default function Experience() {
-  const { ref, inView } = useInView({
-    threshold: 0.1,
-    triggerOnce: true,
-  });
-
   return (
-    <section id="experience" className="py-20 bg-gray-50 dark:bg-gray-900" ref={ref}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-4xl font-bold mb-4">Professional Experience</h2>
-          <p className="text-gray-600 dark:text-gray-400">
-            My journey as a Frontend Developer
-          </p>
-        </motion.div>
+    <section id="experience" className="border-t border-line bg-paper py-20 sm:py-28">
+      <div className="mx-auto grid max-w-page gap-14 px-4 sm:px-6 lg:grid-cols-[1fr_18rem]">
+        <div>
+          <h2 className="font-display text-3xl font-bold tracking-tight text-ink sm:text-5xl">Experience</h2>
 
-        <div className="relative">
-          <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-600 to-purple-600" />
-
-          {experience.map((exp, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-              animate={inView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
-              className={`relative flex items-center mb-12 ${
-                index % 2 === 0 ? "md:justify-start" : "md:justify-end"
-              }`}
-            >
-              <div
-                className={`w-full md:w-1/2 ${
-                  index % 2 === 0 ? "md:pr-8" : "md:pl-8"
-                }`}
-              >
-                <div
-                  className={`bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow ${
-                    index % 2 === 0 ? "ml-16 md:ml-0" : "ml-16 md:mr-0"
+          <ol className="mt-10 border-l-2 border-line">
+            {experience.map((job, i) => (
+              <li key={`${job.company}-${job.title}`} className="relative pb-10 pl-7 last:pb-0">
+                <span
+                  className={`absolute -left-[7px] top-2 h-3 w-3 rounded-full ${
+                    i === 0 ? "bg-marigold" : "bg-cobalt"
                   }`}
-                >
-                  <div className="flex items-center gap-2 mb-3">
-                    <Calendar size={16} className="text-gray-500" />
-                    <span className="text-sm text-gray-500">{exp.period}</span>
-                  </div>
-
-                  <h3 className="text-xl font-bold mb-1 text-gradient">{exp.title}</h3>
-
-                  <div className="flex items-center gap-2 mb-3">
-                    <Building size={16} className="text-gray-500" />
-                    <span className="text-gray-600 dark:text-gray-400">{exp.company}</span>
-                  </div>
-
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    {exp.description}
-                  </p>
-
-                  <div className="space-y-2">
-                    {exp.achievements.map((achievement, i) => (
-                      <div
-                        key={i}
-                        className="flex items-start gap-2"
-                      >
-                        <Award size={16} className="text-blue-500 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm text-gray-600 dark:text-gray-400">
-                          {achievement}
-                        </span>
-                      </div>
+                  aria-hidden
+                />
+                <p className="flex flex-wrap items-center gap-2 text-sm text-muted">
+                  {job.period.includes("present") && (
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">Current</span>
+                  )}
+                  {job.period}, {job.location}
+                </p>
+                <h3 className="mt-1.5 font-display text-xl font-bold text-ink sm:text-2xl">
+                  {job.title} <span className="font-semibold text-muted">at {job.company}</span>
+                </h3>
+                <p className="mt-2 max-w-2xl text-base text-ink">{job.description}</p>
+                {job.achievements.length > 0 && (
+                  <ul className="mt-3 max-w-2xl space-y-2">
+                    {job.achievements.map((a) => (
+                      <li key={a} className="relative pl-4 text-[15px] leading-relaxed text-muted">
+                        <span className="absolute left-0 top-[0.65em] h-1 w-1.5 rounded-full bg-ink/50" aria-hidden />
+                        {a}
+                      </li>
                     ))}
-                  </div>
-                </div>
-              </div>
-
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={inView ? { scale: 1 } : {}}
-                transition={{ duration: 0.3, delay: 0.3 + index * 0.2 }}
-                className={`absolute w-4 h-4 bg-gradient rounded-full ring-4 ring-white dark:ring-gray-900 ${
-                  index % 2 === 0
-                    ? "left-8 md:left-[49%] transform md:-translate-x-1/2"
-                    : "left-8 md:left-[50%] transform md:-translate-x-1/2"
-                }`}
-              />
-            </motion.div>
-          ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ol>
         </div>
+
+        <aside className="h-fit rounded-2xl border border-line bg-fog/60 p-6 lg:sticky lg:top-24">
+          <h2 className="font-display text-xl font-bold text-ink">Education</h2>
+          <ul className="mt-5 space-y-5">
+            {education.map((e) => (
+              <li key={e.degree}>
+                <p className="font-medium text-ink">{e.degree}</p>
+                <p className="text-[15px] text-muted">
+                  {e.institution}, {e.year}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </aside>
       </div>
     </section>
   );

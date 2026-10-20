@@ -1,121 +1,109 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Menu, X, Moon, Sun } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Menu, X } from "lucide-react";
 
 const navItems = [
-  { name: "Home", href: "#home" },
-  { name: "About", href: "#about" },
+  { name: "AI", href: "#ai" },
+  { name: "Roles", href: "#roles" },
+  { name: "GramKick", href: "#gramkick" },
+  { name: "Work", href: "#work" },
   { name: "Skills", href: "#skills" },
-  { name: "Projects", href: "#projects" },
   { name: "Experience", href: "#experience" },
-  { name: "Education", href: "#education" },
-  { name: "Contact", href: "#contact" },
 ];
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // While the mobile menu is open: Escape closes it, and so does
+  // widening the window to the desktop layout.
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [darkMode]);
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const desktop = window.matchMedia("(min-width: 768px)");
+    const onResize = () => desktop.matches && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    desktop.addEventListener("change", onResize);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      desktop.removeEventListener("change", onResize);
+    };
+  }, [open]);
 
   return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-lg"
-          : "bg-transparent"
+    <>
+    {/* Tapping anywhere outside the open menu closes it. */}
+    {open && (
+      <div
+        aria-hidden
+        onClick={() => setOpen(false)}
+        className="fixed inset-0 z-30 bg-ink/30 md:hidden"
+      />
+    )}
+    <header
+      className={`fixed inset-x-0 top-0 z-40 border-b border-line bg-white transition-shadow ${
+        scrolled || open ? "shadow-[0_6px_20px_-12px_rgba(19,32,58,0.35)]" : ""
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center"
+      <nav className="mx-auto flex h-16 max-w-page items-center justify-between px-4 sm:px-6" aria-label="Main">
+        <a href="#top" className="font-display text-lg font-bold tracking-tight text-ink">
+          Firoj Ahamad
+        </a>
+
+        <ul className="hidden items-center gap-7 md:flex">
+          {navItems.map((item) => (
+            <li key={item.href}>
+              <a href={item.href} className="text-[15px] text-muted transition-colors hover:text-ink">
+                {item.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <div className="flex items-center gap-2">
+          <a
+            href="#contact"
+            className="hidden rounded-full bg-ink px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-cobalt sm:inline-block"
           >
-            <span className="text-2xl font-bold text-gradient">Portfolio</span>
-          </motion.div>
-
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-6">
-              {navItems.map((item, index) => (
-                <motion.a
-                  key={item.name}
-                  href={item.href}
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  {item.name}
-                </motion.a>
-              ))}
-              <button
-                onClick={() => setDarkMode(!darkMode)}
-                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              >
-                {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-              </button>
-            </div>
-          </div>
-
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2 mr-2 rounded-lg bg-gray-100 dark:bg-gray-800"
-            >
-              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-md text-gray-700 dark:text-gray-300"
-            >
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
+            Hire me
+          </a>
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            className="rounded-md p-2 text-ink md:hidden"
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            aria-label={open ? "Close menu" : "Open menu"}
+          >
+            {open ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
-      </div>
+      </nav>
 
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          className="md:hidden bg-white dark:bg-gray-900 shadow-lg"
-        >
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {navItems.map((item) => (
+      {open && (
+        <ul id="mobile-nav" className="border-t border-line px-4 pb-4 pt-2 md:hidden">
+          {[...navItems, { name: "Hire me", href: "#contact" }].map((item) => (
+            <li key={item.href}>
               <a
-                key={item.name}
                 href={item.href}
-                onClick={() => setIsOpen(false)}
-                className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium"
+                onClick={() => setOpen(false)}
+                className="block py-3 text-base text-ink"
               >
                 {item.name}
               </a>
-            ))}
-          </div>
-        </motion.div>
+            </li>
+          ))}
+        </ul>
       )}
-    </motion.nav>
+    </header>
+    </>
   );
 }

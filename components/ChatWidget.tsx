@@ -111,7 +111,7 @@ export default function ChatWidget() {
         onClick={toggleChat}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="fixed bottom-[28px] right-[48px] z-50 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full p-4 shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 group"
+        className="fixed bottom-[28px] right-[48px] z-50 bg-cobalt text-white rounded-full p-4 shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 group"
         aria-label="Open chat"
       >
         {isOpen ? (
@@ -171,7 +171,7 @@ export default function ChatWidget() {
               </div>
 
               {/* Header */}
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 flex items-center justify-between">
+              <div className="bg-cobalt text-white p-4 flex items-center justify-between">
                 <div>
                   <h3 className="font-semibold text-lg">Chat with Firoj</h3>
                   <p className="text-sm opacity-90">I&apos;ll reply as soon as I can!</p>
@@ -223,7 +223,7 @@ export default function ChatWidget() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 font-medium"
+                      className="w-full bg-cobalt text-white py-3 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 font-medium"
                     >
                       {isLoading ? 'Starting chat...' : 'Start Chat'}
                     </button>
@@ -246,7 +246,7 @@ export default function ChatWidget() {
                       <button
                         type="submit"
                         disabled={!newMessage.trim()}
-                        className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                        className="bg-cobalt text-white p-3 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
                       >
                         <Send className="w-5 h-5" />
                       </button>

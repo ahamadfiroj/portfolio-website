@@ -1,162 +1,51 @@
-"use client";
+import { skillTiers } from "@/lib/data";
 
-import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
-import { skills } from "@/lib/data";
+// Visual weight follows depth: deep is solid, basics is outlined.
+const chip = [
+  "bg-cobalt text-white",
+  "bg-cobalt-tint text-ink",
+  "border border-dashed border-ink/40 bg-paper text-ink",
+  "border border-line bg-paper text-ink",
+];
+
+// How many of the three meter bars are filled for each tier.
+const meter = [3, 2, 1, 0];
 
 export default function Skills() {
-  const { ref, inView } = useInView({
-    threshold: 0.1,
-    triggerOnce: true,
-  });
-
   return (
-    <section id="skills" className="py-20 bg-gray-50 dark:bg-gray-900" ref={ref}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-4xl font-bold mb-4">Skills & Technologies</h2>
-          <p className="text-gray-600 dark:text-gray-400">
-            Technologies I&apos;ve been working with recently
-          </p>
-        </motion.div>
+    <section id="skills" className="py-20 sm:py-28">
+      <div className="mx-auto max-w-page px-4 sm:px-6">
+        <h2 className="font-display text-3xl font-bold tracking-tight text-ink sm:text-5xl">
+          Skills, sorted by how deep they go
+        </h2>
+        <p className="mt-4 max-w-xl text-lg text-muted">
+          Heavy on the frontend, solid on the backend, and enough testing and DevOps to ship on my own.
+        </p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="space-y-6"
-          >
-            <h3 className="text-2xl font-semibold text-gradient mb-4">Frontend Development</h3>
-            {skills.frontend.map((skill, index) => (
-              <div key={skill.name} className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">{skill.name}</span>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {skill.level}%
+        <div className="mt-12 grid gap-5 md:grid-cols-2">
+          {skillTiers.map((t, i) => (
+            <div key={t.tier} className="rounded-2xl border border-line bg-paper p-6 sm:p-7">
+              <div className="flex items-center justify-between gap-4">
+                <h3 className="font-display text-2xl font-bold text-ink">{t.tier}</h3>
+                {meter[i] > 0 && (
+                  <span className="flex gap-1" role="img" aria-label={`Depth ${meter[i]} of 3`}>
+                    {[0, 1, 2].map((b) => (
+                      <span key={b} className={`h-2 w-6 rounded-full ${b < meter[i] ? "bg-cobalt" : "bg-line"}`} />
+                    ))}
                   </span>
-                </div>
-                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={inView ? { width: `${skill.level}%` } : {}}
-                    transition={{ duration: 1, delay: 0.5 + index * 0.1 }}
-                    className="h-full bg-gradient rounded-full"
-                  />
-                </div>
+                )}
               </div>
-            ))}
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="space-y-6"
-          >
-            <h3 className="text-2xl font-semibold text-gradient mb-4">State Management</h3>
-            {skills.stateManagement.map((skill, index) => (
-              <div key={skill.name} className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">{skill.name}</span>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {skill.level}%
-                  </span>
-                </div>
-                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={inView ? { width: `${skill.level}%` } : {}}
-                    transition={{ duration: 1, delay: 0.5 + index * 0.1 }}
-                    className="h-full bg-gradient rounded-full"
-                  />
-                </div>
-              </div>
-            ))}
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="space-y-6"
-          >
-            <h3 className="text-2xl font-semibold text-gradient mb-4">Styling & UI</h3>
-            {skills.styling.map((skill, index) => (
-              <div key={skill.name} className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">{skill.name}</span>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {skill.level}%
-                  </span>
-                </div>
-                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={inView ? { width: `${skill.level}%` } : {}}
-                    transition={{ duration: 1, delay: 0.6 + index * 0.1 }}
-                    className="h-full bg-gradient rounded-full"
-                  />
-                </div>
-              </div>
-            ))}
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="space-y-6"
-          >
-            <h3 className="text-2xl font-semibold text-gradient mb-4">Backend & APIs</h3>
-            {skills.backend.map((skill, index) => (
-              <div key={skill.name} className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">{skill.name}</span>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {skill.level}%
-                  </span>
-                </div>
-                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={inView ? { width: `${skill.level}%` } : {}}
-                    transition={{ duration: 1, delay: 0.7 + index * 0.1 }}
-                    className="h-full bg-gradient rounded-full"
-                  />
-                </div>
-              </div>
-            ))}
-          </motion.div>
+              <p className="mt-1.5 text-[15px] text-muted">{t.blurb}</p>
+              <ul className="mt-5 flex flex-wrap gap-2">
+                {t.items.map((s) => (
+                  <li key={s} className={`rounded-lg px-3 py-1.5 text-[15px] font-medium ${chip[i] ?? chip[3]}`}>
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-12"
-        >
-          <h3 className="text-2xl font-semibold text-center mb-6">Tools & Technologies</h3>
-          <div className="flex flex-wrap justify-center gap-3">
-            {skills.tools.map((tool, index) => (
-              <motion.span
-                key={tool}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={inView ? { opacity: 1, scale: 1 } : {}}
-                transition={{ duration: 0.3, delay: 0.8 + index * 0.05 }}
-                whileHover={{ scale: 1.1 }}
-                className="px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow cursor-pointer"
-              >
-                {tool}
-              </motion.span>
-            ))}
-          </div>
-        </motion.div>
       </div>
     </section>
   );
