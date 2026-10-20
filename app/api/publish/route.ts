@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { publisher } from "@/lib/redis";
+import { getPublisher } from "@/lib/redis";
 import { nanoid } from "nanoid";
 export async function POST(req: Request) {
   try {
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       text,
       at: Date.now(),
     };
-    await publisher.publish(channel, JSON.stringify(payload));
+    await getPublisher().publish(channel, JSON.stringify(payload));
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("Publish error:", error);
