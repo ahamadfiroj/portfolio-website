@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { subscriber } from "@/lib/redis";
+import { getSubscriber } from "@/lib/redis";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +8,8 @@ const activeChannels = new Set<string>();
 
 export async function GET(req: NextRequest) {
   const channel = req.nextUrl.searchParams.get("channel") || "chat:lobby";
+
+  const subscriber = getSubscriber();
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -62,8 +64,7 @@ export async function GET(req: NextRequest) {
       };
 
       // When client disconnects
-      // @ts-ignore
-      controller.signal?.addEventListener?.("abort", close);
+      req.signal.addEventListener("abort", close);
     },
     cancel() {
       // Don't disconnect the shared subscriber
