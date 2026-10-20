@@ -9,7 +9,8 @@ export const personalInfo = {
   github: "https://github.com/ahamadfiroj",
   linkedin: "https://www.linkedin.com/in/firoj-ahamad-90921b114/",
   bio: "Forward Deployed, Full-stack and Frontend Engineer. Five years shipping React and Next.js products at FabHotels, and sole engineer on GramKick, from the UI to the Node.js API to the Cloud Run deploy.",
-  resumeUrl: "https://drive.google.com/uc?export=download&id=1zS_g5f5KWZwxQYRNhTv07wi0AkoedidD",
+  // Generated from Firoj_Ahamad_Resume.html; regenerate after editing the resume.
+  resumeUrl: "/Firoj_Ahamad_Resume.pdf",
 };
 
 // How people can hire me. Shown in the hero and the contact form.

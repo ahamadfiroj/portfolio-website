@@ -80,6 +80,10 @@ If the browser shows `ChunkLoadError` in development, stop the server, run `rm -
 | `gramkickStack`, `gramkick` | Hero diagram and the case study |
 | `projects`, `skillTiers`, `experience`, `education` | The remaining sections |
 
+### Resume
+
+The resume source is `Firoj_Ahamad_Resume.html`. After editing it, run `npm run resume:pdf` (macOS with Google Chrome) to regenerate `public/Firoj_Ahamad_Resume.pdf`, which the "Download resume" button serves.
+
 Design tokens (colours, fonts, page width) are in `tailwind.config.js`. The site is light-only. The only page-load motion is the hero diagram reveal, which is pure CSS and respects reduced-motion settings.
 
 ## Project structure

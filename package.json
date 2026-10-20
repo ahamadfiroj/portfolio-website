@@ -8,7 +8,8 @@
     "dev": "node server.js",
     "build": "next build",
     "start": "NODE_ENV=production node server.js",
-    "lint": "eslint"
+    "lint": "eslint",
+    "resume:pdf": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --no-pdf-header-footer --virtual-time-budget=8000 --print-to-pdf=public/Firoj_Ahamad_Resume.pdf \"file://$PWD/Firoj_Ahamad_Resume.html\""
   },
   "dependencies": {
     "@types/nodemailer": "^7.0.1",

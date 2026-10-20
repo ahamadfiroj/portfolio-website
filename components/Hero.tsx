@@ -54,6 +54,7 @@ export default function Hero() {
             </a>
             <a
               href={personalInfo.resumeUrl}
+              download="Firoj_Ahamad_Resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-full border border-ink/20 bg-paper px-6 py-3 font-medium text-ink transition-colors hover:border-ink"
