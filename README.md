@@ -1,110 +1,117 @@
-# Senior Frontend Developer Portfolio
+# Firoj Ahamad: Portfolio
 
-A modern, interactive portfolio website built with Next.js, TypeScript, and Tailwind CSS showcasing 4+ years of experience in frontend development.
+Designed, built and maintained by **Firoj Ahamad**. Personal portfolio for Firoj Ahamad, a Forward Deployed, Full-stack and Frontend Engineer based in Gurugram, India. Open to full-time, hybrid, remote and freelance work.
 
-## Features
+**Live site:** https://portfolio-website-1dpz.vercel.app
 
-- **Interactive UI** with smooth animations using Framer Motion
-- **Dark Mode Support** with system preference detection
-- **Responsive Design** optimized for all devices
-- **Dynamic Project Gallery** with filtering capabilities
-- **Skills Visualization** with animated progress bars
-- **Professional Timeline** showcasing work experience
-- **Contact Form** for direct communication
-- **Type Animation** for dynamic role display
-- **Smooth Scrolling** navigation
+It's aimed at hiring managers, recruiters and startup founders, and answers three questions quickly:
 
-## Tech Stack
+1. **What roles?** Forward Deployed Engineer, Full-stack Engineer, Frontend Engineer.
+2. **What can he do?** Heavy frontend (5 years of React, Next.js and TypeScript), working backend (Node.js, Express, MongoDB, Redis), basics of testing and DevOps (node:test, Docker, GitHub Actions, Cloud Run), and an AI-native workflow (Claude Code, Cursor, ChatGPT, Gemini CLI, Antigravity).
+3. **Where's the proof?** [GramKick](https://www.gramkick.com/), a kirana delivery marketplace built solo end to end, plus product work at FabHotels and TravelPlusApp.
 
-- **Framework:** Next.js 15.5
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS v4
-- **Animations:** Framer Motion
-- **Icons:** Lucide React
-- **Type Animation:** React Type Animation
-- **Intersection Observer:** React Intersection Observer
+## What's on the page
 
-## Getting Started
+| Section | Purpose |
+|---|---|
+| Hero | Headline, target roles, availability, resume download, AI tools, and a diagram of the GramKick stack showing ownership depth |
+| AI-native engineering | Tools used daily, how AI output is kept production-grade, and the AI assistant shipped in GramKick |
+| Where I fit | One panel per role with proof, plus a 5-step "how I work with a customer" process |
+| GramKick case study | Frontend, backend, testing and DevOps work on a product built by one engineer |
+| Products | FabHotels, TravelPlusApp and internal operations tools |
+| Skills | Grouped by depth: Deep, Working, Basics, AI and workflow |
+| Experience | Timeline plus education |
+| Contact | Form with engagement type (full-time, hybrid, remote, freelance), saved to MongoDB and emailed via Resend |
 
-### Prerequisites
+Site-wide extras: a live chat widget (visitor ↔ admin), a WhatsApp button, and a password-protected admin panel at `/admin` for replying to chats.
 
-- Node.js 18+ installed
-- npm or yarn package manager
+## Tech stack
 
-### Installation
+- **Framework:** Next.js 15 (App Router), React 19, TypeScript
+- **Styling:** Tailwind CSS 3.4 with custom design tokens, Bricolage Grotesque and IBM Plex Sans via `next/font`
+- **Backend:** Next.js route handlers, MongoDB (native driver), Resend for email
+- **Auth (admin):** JWT with `jose`, bcrypt-hashed passwords, OTP password reset
+- **Server:** custom `server.js` running Next.js and Socket.io on one port
 
-1. Clone the repository:
-```bash
-cd portfolio-website
-```
+## Getting started
 
-2. Install dependencies:
+Requires Node.js 18+.
+
 ```bash
 npm install
+cp .env.example .env.local   # then fill in the values below
+npm run dev                  # runs server.js on http://localhost:3000
 ```
 
-3. Run the development server:
-```bash
-npm run dev
-```
-
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
-
-## Customization
-
-### Personal Information
-
-Edit `/lib/data.ts` to update:
-- Personal details (name, email, location)
-- Social media links
-- Skills and proficiency levels
-- Projects with descriptions and technologies
-- Work experience timeline
-- Testimonials
-
-### Styling
-
-- Global styles: `/app/globals.css`
-- Dark mode: Controlled via the navbar toggle
-- Colors: Using Tailwind's gradient utilities
-
-## Build for Production
+Other scripts:
 
 ```bash
-npm run build
-npm start
+npm run build    # production build
+npm start        # production server (server.js with NODE_ENV=production)
+npm run lint     # ESLint
 ```
 
-## Project Structure
+If the browser shows `ChunkLoadError` in development, stop the server, run `rm -rf .next`, and start it again. Never run two dev servers against the same folder at once.
+
+## Environment variables
+
+| Variable | Needed for |
+|---|---|
+| `MONGODB_URI` | Contact form, chat, admin users (required) |
+| `JWT_SECRET` | Admin login. Always set in production. |
+| `RESEND_API_KEY` | All outgoing email |
+| `ADMIN_EMAIL`, `EMAIL_USER` | Who receives contact and chat notifications |
+| `NEXT_PUBLIC_SITE_URL` | Socket.io CORS origin in production |
+| `REDIS_URL` | Only for the experimental `/chat` Redis demo |
+| `PORT` | Server port (default 3000) |
+
+`.env.example` doesn't list all of these yet.
+
+## Editing content
+
+**All text lives in `lib/data.ts`.** Components only render it, so you rarely need to touch them.
+
+| Export | Controls |
+|---|---|
+| `personalInfo` | Name, title, email, phone, links, resume URL |
+| `hero`, `availability` | Headline, intro, proof bar, roles and engagement types |
+| `ai` | AI tools, practices, and the shipped AI feature |
+| `roleFit`, `workProcess` | "Where I fit" panels and the 5-step process |
+| `gramkickStack`, `gramkick` | Hero diagram and the case study |
+| `projects`, `skillTiers`, `experience`, `education` | The remaining sections |
+
+### Resume
+
+The resume source is `Firoj_Ahamad_Resume.html`. After editing it, run `npm run resume:pdf` (macOS with Google Chrome) to regenerate `public/Firoj_Ahamad_Resume.pdf`, which the "Download resume" button serves.
+
+Design tokens (colours, fonts, page width) are in `tailwind.config.js`. The site is light-only. The only page-load motion is the hero diagram reveal, which is pure CSS and respects reduced-motion settings.
+
+## Project structure
 
 ```
-portfolio-website/
-├── app/
-│   ├── page.tsx           # Main page component
-│   ├── layout.tsx         # Root layout with metadata
-│   └── globals.css        # Global styles
-├── components/
-│   ├── Navbar.tsx         # Navigation with dark mode
-│   ├── Hero.tsx           # Landing section
-│   ├── Skills.tsx         # Skills visualization
-│   ├── Projects.tsx       # Project gallery
-│   ├── Experience.tsx     # Work timeline
-│   ├── Contact.tsx        # Contact form
-│   └── Footer.tsx         # Footer section
-├── lib/
-│   └── data.ts            # Portfolio data
-└── public/
-    └── ...                # Static assets
+app/
+  page.tsx              home page: assembles the sections
+  layout.tsx            fonts, SEO metadata, JSON-LD, chat + WhatsApp widgets
+  admin/                admin login, password reset, chat inbox
+  api/                  contact, chat, admin auth, resume upload
+components/
+  Navbar, Hero, AiWorkflow, RoleFit, CaseStudy,
+  Projects, Skills, Experience, Contact, Footer
+  ChatWidget, ChatMessages, WhatsAppButton      site-wide widgets
+lib/
+  data.ts               all portfolio content
+  mongodb.ts, email*.ts, notifications.ts, otp.ts
+models/                 Chat, User, PasswordReset types
+server.js               Next.js + Socket.io server
 ```
 
-## Performance Optimizations
+## Deployment
 
-- **Code Splitting:** Automatic with Next.js
-- **Image Optimization:** Using Next.js Image component
-- **Lazy Loading:** Components load on scroll
-- **SEO Ready:** Meta tags and Open Graph support
-- **Responsive:** Mobile-first design approach
+- **Vercel:** works, but `server.js` doesn't run there, so chat updates by polling every 5 seconds.
+- **Railway or any Node host:** run `npm run build && npm start` to use the custom server.
 
 ## Contact
 
-For any questions or suggestions, please reach out through the contact form on the portfolio or via the provided social media links.
+- Email: famd786@gmail.com
+- LinkedIn: https://www.linkedin.com/in/firoj-ahamad-90921b114/
+- GitHub: https://github.com/ahamadfiroj

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Firoj Ahamad">
+    <title>Firoj Ahamad - Resume</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Heading font: only the letters the headings use, so the PDF stays small -->
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@800&text=AEFLSacdeghijklmnoprstuxy%20&display=swap" rel="stylesheet">
+    <style>
+        /* Same palette as the portfolio site */
+        :root {
+            --ink: #13203A;
+            --muted: #56617A;
+            --line: #D5DBE5;
+            --cobalt: #2547D0;
+            --marigold: #E9A23B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--ink);
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .resume {
+            width: 100%;
+            max-width: 850px;
+            padding: 16px 36px 26px;
+        }
+
+        /* Header */
+        h1 {
+            font-family: "Bricolage Grotesque", Arial, sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.05;
+            color: var(--ink);
+        }
+
+        .role-line {
+            font-size: 0.98rem;
+            font-weight: 600;
+            color: var(--cobalt);
+            margin-top: 4px;
+        }
+
+        .availability {
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .contact-row {
+            font-size: 0.82rem;
+            margin-top: 8px;
+            padding-bottom: 10px;
+            border-bottom: 1.5px solid var(--ink);
+        }
+
+        .contact-row span,
+        .contact-row a {
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .contact-row a {
+            color: var(--cobalt);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-row .sep {
+            color: #9AA3B5;
+        }
+
+        /* Section headings */
+        h2 {
+            font-family: "Bricolage Grotesque", Arial, sans-serif;
+            font-size: 1.02rem;
+            font-weight: 800;
+            color: var(--ink);
+            margin-top: 14px;
+            margin-bottom: 6px;
+            padding-bottom: 3px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            border-radius: 2px;
+            background: var(--marigold);
+            margin-right: 8px;
+            vertical-align: 1px;
+        }
+
+        p,
+        li {
+            font-size: 0.87rem;
+            line-height: 1.45;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        /* Skills: plain text lines so ATS can read every keyword */
+        .skill-line {
+            margin-bottom: 3px;
+        }
+
+        .skill-label {
+            font-weight: 600;
+        }
+
+        .depth {
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: var(--cobalt);
+            margin-left: 2px;
+        }
+
+        /* Experience */
+        .job {
+            margin-bottom: 9px;
+        }
+
+        .job-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
+        }
+
+        .job-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .job-company {
+            color: var(--cobalt);
+        }
+
+        .job-meta {
+            font-size: 0.8rem;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .job-sub {
+            font-size: 0.84rem;
+            font-style: italic;
+            color: var(--muted);
+            margin: 1px 0 3px;
+        }
+
+        .job ul {
+            margin-left: 17px;
+        }
+
+        .job li {
+            margin-bottom: 2px;
+        }
+
+        .job li::marker {
+            color: var(--marigold);
+        }
+
+        /* Education & languages */
+        .edu-line {
+            margin-bottom: 3px;
+        }
+
+        .edu-line .job-meta {
+            margin-left: 6px;
+        }
+
+        @media print {
+            .resume {
+                max-width: 100%;
+                padding: 0.25in 0.5in 0.35in;
+            }
+
+            a {
+                color: var(--cobalt);
+            }
+
+            .job {
+                break-inside: avoid;
+            }
+
+            /* Scale down on paper so the resume fits one A4 page */
+            .resume {
+                zoom: 0.8;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="resume">
+        <!-- Header -->
+        <h1>Firoj Ahamad</h1>
+        <div class="role-line">Forward Deployed Engineer | Full-stack Engineer | Frontend Engineer</div>
+        <div class="availability">Open to full-time, hybrid, remote and freelance roles. Based in Gurugram, India.
+        </div>
+        <div class="contact-row">
+            <a href="tel:+919005214654">+91-9005214654</a><span class="sep">|</span>
+            <a href="mailto:famd786@gmail.com">famd786@gmail.com</a><span class="sep">|</span>
+            <a href="https://portfolio-website-1dpz.vercel.app">https://portfolio-website-1dpz.vercel.app</a><span
+                class="sep">|</span>
+            <a href="https://www.linkedin.com/in/firoj-ahamad-90921b114/">LinkedIn</a><span class="sep">|</span>
+            <a href="https://github.com/ahamadfiroj">GitHub</a><span class="sep">|</span>
+            <a href="https://www.gramkick.com/">gramkick.com</a>
+        </div>
+
+        <!-- Summary -->
+        <h2>Summary</h2>
+        <p>
+            Frontend-heavy full-stack engineer with <strong>5 years</strong> of experience shipping production web
+            apps with <strong>React, Next.js and TypeScript</strong>. Sole engineer on <strong>GramKick</strong>, a
+            kirana delivery marketplace, owning it end to end: four web portals, a Node.js/Express API on MongoDB and
+            Redis, and Docker deploys to Google Cloud Run. At FabHotels, drove a <strong>15-20% increase in
+                bookings</strong>. Works close to users, writes clear specs before building, and uses an
+            <strong>AI-native workflow</strong> (Claude Code, Cursor, ChatGPT, Gemini CLI, Antigravity) with every
+            change reviewed and gated by types, lint and tests.
+        </p>
+
+        <!-- Skills -->
+        <h2>Skills</h2>
+        <p class="skill-line"><span class="skill-label">Frontend</span><span class="depth">(deep)</span>: React.js,
+            Next.js, TypeScript, JavaScript (ES6+), HTML5, CSS3, Redux Toolkit, Redux-Saga, Redux-Thunk, React Context,
+            Tailwind CSS, Styled Components, SASS, Material UI, Storybook, Micro Frontends, Webpack, Babel, Performance
+            Optimization, Responsive Design</p>
+        <p class="skill-line"><span class="skill-label">Backend</span><span class="depth">(working)</span>: Node.js,
+            Express.js, REST API Design, MongoDB, Redis, Authentication and OTP Flows, Payment Integrations (UPI,
+            PhonePe), Sentry</p>
+        <p class="skill-line"><span class="skill-label">Testing and DevOps</span><span class="depth">(basics)</span>:
+            node:test, Jest, React Testing Library, Manual and Regression Testing, Docker, GitHub Actions, Jenkins,
+            CI/CD, Google Cloud Run, GCP, AWS, Render</p>
+        <p class="skill-line"><span class="skill-label">AI and Workflow</span>: Claude Code, Cursor, ChatGPT, Gemini
+            CLI, Antigravity, LLM API Integration, Prompt Design and Guardrails, Git, GitHub, Postman, Figma to Code,
+            Agile/Scrum, Python (Basic)</p>
+
+        <!-- Experience -->
+        <h2>Experience</h2>
+
+        <div class="job">
+            <div class="job-head">
+                <div class="job-title">Senior Software Engineer, Frontend <span class="job-company">|
+                        FabHotels</span></div>
+                <div class="job-meta">Apr 2022 - Present | Gurugram</div>
+            </div>
+            <div class="job-sub">Frontend lead for hotel, operations and B2C teams across FabHotels and TravelPlusApp.
+            </div>
+            <ul>
+                <li>Drove a <strong>15-20% increase in bookings</strong> and a <strong>12-16% boost in user
+                        satisfaction</strong> with faster, clearer booking UI built on scalable TypeScript
+                    architecture.</li>
+                <li>Modernized a legacy <strong>React 16 + Redux-Thunk</strong> codebase to <strong>React 18,
+                        TypeScript, Redux Toolkit and Redux-Saga</strong>, cutting tech debt and speeding up delivery.
+                </li>
+                <li>Reduced production bundle size by <strong>25%</strong> with code splitting, lazy loading and tree
+                    shaking.</li>
+                <li>Built a <strong>Storybook component library</strong> shared across teams, and micro frontends
+                    joining the TravelPlusApp employee and admin apps.</li>
+                <li>Wrote <strong>Node.js and Express middleware</strong> for API proxying, logging and secure error
+                    handling; set up <strong>CI/CD</strong> with Jenkins on GCP and AWS.</li>
+                <li>Delivered 8+ internal admin portals (settlements, invoices, sales onboarding, corporate bookings)
+                    with role-based access.</li>
+                <li>Brought <strong>Cursor and Claude Code</strong> into daily work to speed up delivery and reduce
+                    tech debt.</li>
+            </ul>
+        </div>
+
+        <div class="job">
+            <div class="job-head">
+                <div class="job-title">Full-stack Engineer, Sole Owner <span class="job-company">| GramKick</span>
+                </div>
+                <div class="job-meta">2026 - Present | Remote</div>
+            </div>
+            <div class="job-sub">Kirana delivery marketplace connecting shoppers, stores and wholesale dealers.</div>
+            <ul>
+                <li>Built <strong>four role-based portals</strong> (customer, merchant, dealer, admin) in one
+                    <strong>Next.js 16 / React 19</strong> app with Redux Toolkit, an in-house UI component library,
+                    i18n, in-browser barcode scanning for billing, and PDF invoices.
+                </li>
+                <li>Merged <strong>five separate APIs into one Express 5 service</strong> without changing any route
+                    or response contract; added OTP login, UPI QR payments, PhonePe subscriptions and WhatsApp order
+                    alerts.</li>
+                <li>Used <strong>MongoDB</strong> for data and <strong>Redis</strong> for caching, rate limiting and
+                    idempotent order writes; bulk catalogue import from Excel; Cloudinary image storage.</li>
+                <li>Shipped an <strong>AI support assistant</strong> for merchants and dealers: read-only, rate-limited
+                    per merchant, with guardrails against prompt injection and secret leaks.</li>
+                <li>Set up <strong>Docker</strong> builds and <strong>GitHub Actions</strong> deploys to
+                    <strong>Google Cloud Run</strong>, with health checks and graceful shutdown; 13 node:test suites
+                    across services.
+                </li>
+                <li>Wrote design specs (wallet payments, WhatsApp OTP login, cloud migration) before building, the
+                    way a forward deployed engineer scopes work with stakeholders.</li>
+            </ul>
+        </div>
+
+        <div class="job">
+            <div class="job-head">
+                <div class="job-title">Frontend Engineer, Intern <span class="job-company">| FabHotels</span></div>
+                <div class="job-meta">Oct 2021 - Apr 2022 | Gurugram</div>
+            </div>
+            <ul>
+                <li>Learned production React on real features, bug fixes and code reviews alongside senior engineers.
+                </li>
+            </ul>
+        </div>
+
+        <div class="job">
+            <div class="job-head">
+                <div class="job-title">Subject Matter Expert, Freelance <span class="job-company">| Chegg India</span>
+                </div>
+                <div class="job-meta">Jul 2018 - Oct 2021 | Remote</div>
+            </div>
+            <ul>
+                <li>Solved engineering problems for students worldwide, then moved into frontend development.</li>
+            </ul>
+        </div>
+
+        <!-- Education -->
+        <h2>Education</h2>
+        <p class="edu-line"><strong>M.Tech</strong>, Jamia Millia Islamia, New Delhi <span class="job-meta">2020 |
+                GPA 7.6</span></p>
+        <p class="edu-line"><strong>B.Tech</strong>, AKTU, Lucknow <span class="job-meta">2017 | 67%</span></p>
+
+        <!-- Languages -->
+        <h2>Languages</h2>
+        <p>English (Fluent), Hindi (Native)</p>
+    </div>
+</body>
+
+</html>
